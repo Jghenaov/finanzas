@@ -78,7 +78,7 @@ class Ingresos(Registro):
             tipoIngreso = input('Cual es el tipo de ingreso:(Sueldo fijo, Dividendos, Independientes, Otros) ').lower()
             if tipoIngreso not in ['sueldo fijo', 'dividendos', 'independientes', 'otros']:
                 raise ValueError(f'El tipo de ingreso {tipoIngreso} no es valido')
-            if ingreso > 0:
+            if ingreso <= 0:
                 raise ValueError('La cantidad debe ser mayor a 0')
             
             self.cantidad += ingreso
@@ -102,14 +102,18 @@ class Gastos(Registro):
     def regitrar_ingreso(self):
         
         while True:
-            ingreso = int(input('Cuanto deseas depositar:  '))
-            tipoIngreso = input('Cual es el tipo de ingreso:(Sueldo fijo, Dividendos, Independientes, Otros) ').lower()
-            if tipoIngreso not in ['sueldo fijo', 'dividendos', 'independientes', 'otros']:
-                raise ValueError(f'El tipo de ingreso {tipoIngreso} no es valido')
-            if ingreso > 0:
-                raise ValueError('La cantidad debe ser mayor a 0')
-            
-            self.cantidad += ingreso
+            egreso = int(input('Cuanto dinero gasto:  '))
+            tipoEgreso = input('Cual es el tipo de egreso:(Transporte, alimentacion, servicios, ocio, hogar, cuidado personal,Otros) ').lower()
+            if tipoEgreso not in ['Transporte', 'alimentacion', 'servicios', 'ocio', 'hogar', 'cuidado personal','Otros']:
+                raise ValueError(f'El tipo de egreso {tipoEgreso} no es valido')
+            if egreso <= 0:
+                raise ValueError('La cantidad debe ser mayor a 0')            
+            self.cantidad += egreso
+
+    def actualizar(self):
+        nuevo_egreso = {'Cantidad': self.cantidad, 'Tipo de registro': self.tipo}        
+        self.egresos.append(nuevo_egreso)
+        self.historial.append(nuevo_egreso)
 
 
 
