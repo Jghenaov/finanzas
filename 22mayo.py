@@ -42,19 +42,21 @@
     Generar reportes simples."""
 
 from abc import ABC, abstractmethod
+from os import system
 
-"""ingresos = []
-historial = []
-balance = []"""
+
 
 
 class Registro(ABC):
     
+    ingresos = 0
+    saldo_total = 0
+    historial = []
 
-    def __init__(self, tipo_registro, cantidad):
+    def __init__(self, cantidad, tipo_registro):
         self.tipo = tipo_registro
         self.cantidad = cantidad
-        self.historial = []
+        
 
         
     @abstractmethod
@@ -64,36 +66,41 @@ class Registro(ABC):
 
 class Ingresos(Registro):
     
-    def __init__(self, tipo_registro, cantidad):
-        super().__init__(tipo_registro, cantidad)
+    def __init__(self, cantidad, tipo_registro):
+        super().__init__(cantidad, tipo_registro)
         self.ingresos = []
 
     def __str__(self):
-        return f'Cantidad ingresos: {self.cantidad}, Tipo: {self.tipo}'
+        return f'Ingresos totales: {Registro.ingresos}'
+    
+    
     
     def regitrar_ingreso(self):
         
-        while True:
-            ingreso = int(input('Cuanto deseas depositar:  '))
-            tipoIngreso = input('Cual es el tipo de ingreso:(Sueldo fijo, Dividendos, Independientes, Otros) ').lower()
-            if tipoIngreso not in ['sueldo fijo', 'dividendos', 'independientes', 'otros']:
-                raise ValueError(f'El tipo de ingreso {tipoIngreso} no es valido')
-            if ingreso <= 0:
-                raise ValueError('La cantidad debe ser mayor a 0')
-            
-            self.cantidad += ingreso
-                
-
-
-    def actualizar(self):
+        if self.tipo not in ['sueldo fijo', 'dividendos', 'independientes', 'otros']:
+            raise ValueError(f'El tipo de ingreso {self.tipo} no es valido')
+        if self.cantidad     <= 0:
+            raise ValueError('La cantidad debe ser mayor a 0')  
+        Registro.ingresos += self.cantidad 
+        Registro.saldo_total += self.cantidad
         nuevo_ingreso = {'Cantidad': self.cantidad, 'Tipo de registro': self.tipo}        
         self.ingresos.append(nuevo_ingreso)
-        self.historial.append(nuevo_ingreso)
+        Registro.historial.append(nuevo_ingreso)     
+    
+    def actualizar(self):
+        
+        for ing in self.ingresos:
+            print(ing)
+            
+            
+def historial_ingresos():
+    for i, ingreso in enumerate(Registro.historial, 1):
+        print(f'{i}. {ingreso}')       
         
 class Gastos(Registro):
 
-    def __init__(self, tipo_registro, cantidad):
-        super().__init__(tipo_registro, cantidad)
+    def __init__(self, cantidad, tipo_registro):
+        super().__init__(cantidad, tipo_registro)
         self.egresos = []
 
     def __str__(self):
@@ -105,10 +112,11 @@ class Gastos(Registro):
             egreso = int(input('Cuanto dinero gasto:  '))
             tipoEgreso = input('Cual es el tipo de egreso:(Transporte, alimentacion, servicios, ocio, hogar, cuidado personal,Otros) ').lower()
             if tipoEgreso not in ['Transporte', 'alimentacion', 'servicios', 'ocio', 'hogar', 'cuidado personal','Otros']:
-                raise ValueError(f'El tipo de egreso {tipoEgreso} no es valido')
+                return(f'El tipo de egreso {tipoEgreso} no es valido')
             if egreso <= 0:
                 raise ValueError('La cantidad debe ser mayor a 0')            
             self.cantidad += egreso
+            
 
     def actualizar(self):
         nuevo_egreso = {'Cantidad': self.cantidad, 'Tipo de registro': self.tipo}        
@@ -119,7 +127,37 @@ class Gastos(Registro):
 
 
 
-   
+def menu():
+    while True:
+        print('MENU PRINCUPAL.')
+        print('********************************')
+        print('1. Ingresos')   
+        print('2. Egresos')
+        print('3. Salir')
+        print('********************************')
+        
+        opcion = int(input('Elige una opcion: '))
+        system('clear')
+        if opcion == 1:
+            try:    
+                ingreso = int(input('Cuanto es el ingreso:  '))
+                tipoIngreso = input('Cual es el tipo de ingreso:(Sueldo fijo, Dividendos, Independientes, Otros) ').lower()
+                ing = Ingresos(ingreso, tipoIngreso)
+                ing.regitrar_ingreso()
+                historial_ingresos()                
+                ing.actualizar()
+                print(Ingresos)
+            except ValueError as e:
+                print(f'ERROR: {e}')
+ 
+        
+
+menu()
+
+
+
+
+
 
 
 
