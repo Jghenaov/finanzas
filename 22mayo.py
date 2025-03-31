@@ -52,7 +52,7 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 
-
+# Se crea clase abstractra
 class Registro(ABC):
     
     ingresos = 0
@@ -82,15 +82,8 @@ class Ingresos(Registro):
         self.ingreso="Ingreso"
         
         
-      
-    
-    def registrar_ingreso(self):
-        
-        if self.tipo not in ['sueldo', 'dividendos', 'independientes', 'otros']:
-            raise ValueError(f'El tipo de ingreso {self.tipo} no es valido')
-        if self.cantidad  <= 0 and self.cantidad != int:
-            raise ValueError('La cantidad debe ser mayor a 0 y no puede ser letras')
-        
+
+    def registrar_ingreso(self):        
            
         Registro.ingresos += self.cantidad 
         Registro.saldo_total += self.cantidad
@@ -104,6 +97,8 @@ class Ingresos(Registro):
                   
             
 def historial_movimientos():
+    if not Registro.historial:
+        raise IndexError('La lista esta vacia.')
     print(f"{"Cantidad":<15} {"Tipo de registro":<20} {"Tipo":<15}")
     print("-------------------------------------------------")
     for historial in Registro.historial:
@@ -118,15 +113,8 @@ class Gastos(Registro):
         self.egreso= "Egreso"
     
     
-    
     def registrar_egreso(self):
-            
-            if self.tipo not in ['transporte', 'alimentacion', 'servicios', 'ocio', 'hogar', 'cuidado personal','otros']:
-                raise ValueError(f'El tipo de egreso {self.tipo} no es valido')
-            if self.cantidad  <= 0 and self.cantidad != int:
-                raise ValueError('La cantidad debe ser mayor a 0 y no puede ser letras')
-            if self.cantidad > Registro.saldo_total:
-                raise ValueError('No cuentas con la  cantidad suficiente para este gasto.')            
+                                  
             Registro.saldo_total -= self.cantidad
             Registro.egresos += self.cantidad
             nuevo_egreso = {'Cantidad': self.cantidad, 'Tipo de registro': self.tipo, 'Tipo':self.egreso} 
@@ -135,13 +123,11 @@ class Gastos(Registro):
 
             
             
-
     def actualizar(self):
         logging.info(f'\nSu saldo actual es: ${Registro.saldo_total}')
                
     
-
-
+    
 def menu():
     
     while True:
@@ -159,51 +145,57 @@ def menu():
                 raise ValueError('No puedes dejar espacios en blanco. Intenta de nuevo.')
             system('clear')
             if opcion == '1':
-                try:    
-                    ingreso = int(input('Cuanto es el ingreso:  '))
-                    system('clear')
-                    tipoIngreso = input('Cual es el tipo de ingreso:(Sueldo fijo, Dividendos, Independientes, Otros) ').lower()
-                    system('clear')
-                    ing = Ingresos(ingreso, tipoIngreso)
-                    ing.registrar_ingreso()                
-                    ing.actualizar()
-                    Registro.logestado()
-                except ValueError as e:
-                    logging.error(f'ERROR: {e}')
+                    
+                ingreso = int(input('Cuanto es el ingreso:  '))
+                if ingreso  <= 0 and ingreso != int:
+                    raise ValueError('La cantidad debe ser mayor a 0 y no puede ser letras')
+                system('clear')
+                tipoIngreso = input('Cual es el tipo de ingreso:(Sueldo fijo, Dividendos, Independientes, Otros) ').lower()
+                if tipoIngreso not in ['sueldo', 'dividendos', 'independientes', 'otros']:
+                    raise ValueError(f'El tipo de ingreso {tipoIngreso} no es valido')
+                system('clear')
+                ing = Ingresos(ingreso, tipoIngreso)
+                ing.registrar_ingreso()                
+                ing.actualizar()
+                Registro.logestado()
+                
                     
             elif  opcion == '2':
-                try:
-                    egreso = int(input('Cuanto dinero gasto:  '))
-                    system('clear')
-                    tipoEgreso = input('Cual es el tipo de egreso:(Transporte, alimentacion, servicios, ocio, hogar, cuidado personal,Otros) ').lower()
-                    system('clear')
-                    egr = Gastos(egreso, tipoEgreso)
-                    egr.registrar_egreso()
-                    egr.actualizar()
-                    Registro.logestado()
-                except ValueError as e:
-                    logging.error(f'\nERROR: {e}')
-            elif opcion == '3':
+                
+                egreso = int(input('Cuanto dinero gasto:  '))
+                if egreso > Registro.saldo_total:
+                    raise ValueError('No cuentas con la  cantidad suficiente para este gasto.')
+                if egreso  <= 0 and egreso != int:
+                    raise ValueError('La cantidad debe ser mayor a 0 y no puede ser letras')
+                system('clear')
+                tipoEgreso = input('Cual es el tipo de egreso:(Transporte, alimentacion, servicios, ocio, hogar, cuidado personal,Otros) ').lower()
+                if tipoEgreso not in ['transporte', 'alimentacion', 'servicios', 'ocio', 'hogar', 'cuidado personal','otros']:
+                    raise ValueError(f'El tipo de egreso {tipoEgreso} no es valido')
+                system('clear')
+                egr = Gastos(egreso, tipoEgreso)
+                egr.registrar_egreso()
+                egr.actualizar()
+                Registro.logestado()
+                
+                    
+            elif opcion == '3':                
                 system('clear')
                 historial_movimientos()
+                
 
             
             
             elif opcion == 4:
                 logging.debug('Saliendo del programa.')
                 break  
+            
             else:
                 logging.error('Opcion incorrecta')      
         
-        except ValueError as e:
+        except (ValueError, IndexError) as e:
             system('clear')  
-            logging.error(f'ERROR: {e}')
+            logging.error(f'Tipo error: {e}')
             
-            
-            
-        except ValueError:
-            system('clear')  
-            logging.error('Opcion incorrecta. Intenta nuevamente.')
                   
 
 menu()
