@@ -79,20 +79,22 @@ class Ingresos(Registro):
     def __init__(self, cantidad, tipo_registro):
         super().__init__(cantidad, tipo_registro)
         self.ingresos = []
-    @classmethod
-    def logestado(cls):
-        mensaje = f'Ingresos totales: ${cls.ingresos}, Egresos totales: ${cls.egresos}'
-        logging.info(mensaje)   
+        self.ingreso="Ingreso"
+        
+        
+      
     
     def registrar_ingreso(self):
         
-        if self.tipo not in ['sueldo fijo', 'dividendos', 'independientes', 'otros']:
+        if self.tipo not in ['sueldo', 'dividendos', 'independientes', 'otros']:
             raise ValueError(f'El tipo de ingreso {self.tipo} no es valido')
-        if self.cantidad  <= 0:
-            raise ValueError('La cantidad debe ser mayor a 0')  
+        if self.cantidad  <= 0 and self.cantidad != int:
+            raise ValueError('La cantidad debe ser mayor a 0 y no puede ser letras')
+        
+           
         Registro.ingresos += self.cantidad 
         Registro.saldo_total += self.cantidad
-        nuevo_ingreso = {'Cantidad': self.cantidad, 'Tipo de registro': self.tipo}        
+        nuevo_ingreso = {'Cantidad': self.cantidad, 'Tipo de registro': self.tipo, 'Tipo':self.ingreso}        
         self.ingresos.append(nuevo_ingreso)
         Registro.historial.append(nuevo_ingreso) 
         
@@ -102,29 +104,32 @@ class Ingresos(Registro):
                   
             
 def historial_movimientos():
-    for i, ingreso in enumerate(Registro.historial, 1):
-        print(f'{i}. {ingreso}')       
+    print(f"{"Cantidad":<15} {"Tipo de registro":<20} {"Tipo":<15}")
+    print("-------------------------------------------------")
+    for historial in Registro.historial:
+        print(f"{historial["Cantidad"]:<15} {historial["Tipo de registro"]:<20} {historial["Tipo"]:<15}")
+               
         
 class Gastos(Registro):
 
     def __init__(self, cantidad, tipo_registro):
         super().__init__(cantidad, tipo_registro)
         self.egresos = []
-    @classmethod
-    def logestado(cls):
-        mensaje = f'Ingresos totales: ${cls.ingresos}, Egresos totales: ${cls.egresos}'
-        logging.info(mensaje)
+        self.egreso= "Egreso"
+    
     
     
     def registrar_egreso(self):
             
-            if self.tipo not in ['Transporte', 'alimentacion', 'servicios', 'ocio', 'hogar', 'cuidado personal','Otros']:
+            if self.tipo not in ['transporte', 'alimentacion', 'servicios', 'ocio', 'hogar', 'cuidado personal','otros']:
                 raise ValueError(f'El tipo de egreso {self.tipo} no es valido')
+            if self.cantidad  <= 0 and self.cantidad != int:
+                raise ValueError('La cantidad debe ser mayor a 0 y no puede ser letras')
             if self.cantidad > Registro.saldo_total:
                 raise ValueError('No cuentas con la  cantidad suficiente para este gasto.')            
             Registro.saldo_total -= self.cantidad
             Registro.egresos += self.cantidad
-            nuevo_egreso = {'Cantidad': self.cantidad, 'Tipo de registro': self.tipo} 
+            nuevo_egreso = {'Cantidad': self.cantidad, 'Tipo de registro': self.tipo, 'Tipo':self.egreso} 
             self.egresos.append(nuevo_egreso)
             self.historial.append(nuevo_egreso)
 
@@ -145,15 +150,15 @@ def menu():
         print('1. Ingresos')   
         print('2. Egresos')
         print('3. Historial Movimientos')
-        print('3. Salir')
+        print('4. Salir')
         print('********************************')
         
         try:
-            opcion = int(input('Elige una opcion: '))
+            opcion = input('Elige una opcion: ')
             if not opcion:
                 raise ValueError('No puedes dejar espacios en blanco. Intenta de nuevo.')
             system('clear')
-            if opcion == 1:
+            if opcion == '1':
                 try:    
                     ingreso = int(input('Cuanto es el ingreso:  '))
                     system('clear')
@@ -166,7 +171,7 @@ def menu():
                 except ValueError as e:
                     logging.error(f'ERROR: {e}')
                     
-            elif  opcion == 2:
+            elif  opcion == '2':
                 try:
                     egreso = int(input('Cuanto dinero gasto:  '))
                     system('clear')
@@ -178,18 +183,17 @@ def menu():
                     Registro.logestado()
                 except ValueError as e:
                     logging.error(f'\nERROR: {e}')
-            elif opcion == 3:
+            elif opcion == '3':
                 system('clear')
                 historial_movimientos()
+
+            
             
             elif opcion == 4:
-                logging.debug('\nSaliendo del programa...')
-                break
-            
+                logging.debug('Saliendo del programa.')
+                break  
             else:
-                if opcion == 3:
-                    logging.debug('Saliendo del programa.')
-                    break
+                logging.error('Opcion incorrecta')      
         
         except ValueError as e:
             system('clear')  
