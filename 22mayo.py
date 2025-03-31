@@ -144,6 +144,7 @@ def menu():
         print('********************************')
         print('1. Ingresos')   
         print('2. Egresos')
+        print('3. Historial Movimientos')
         print('3. Salir')
         print('********************************')
         
@@ -159,8 +160,7 @@ def menu():
                     tipoIngreso = input('Cual es el tipo de ingreso:(Sueldo fijo, Dividendos, Independientes, Otros) ').lower()
                     system('clear')
                     ing = Ingresos(ingreso, tipoIngreso)
-                    ing.registrar_ingreso()
-                    historial_movimientos()                
+                    ing.registrar_ingreso()                
                     ing.actualizar()
                     Registro.logestado()
                 except ValueError as e:
@@ -174,13 +174,15 @@ def menu():
                     system('clear')
                     egr = Gastos(egreso, tipoEgreso)
                     egr.registrar_egreso()
-                    historial_movimientos()
                     egr.actualizar()
                     Registro.logestado()
                 except ValueError as e:
                     logging.error(f'\nERROR: {e}')
-            
             elif opcion == 3:
+                system('clear')
+                historial_movimientos()
+            
+            elif opcion == 4:
                 logging.debug('\nSaliendo del programa...')
                 break
             
