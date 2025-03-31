@@ -48,8 +48,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s',
-                    filename='transacciones.log',
-                    filemode= 'w')
+                    handlers=[logging.StreamHandler()])
 
 
 
@@ -64,9 +63,11 @@ class Registro(ABC):
     def __init__(self, cantidad, tipo_registro):
         self.tipo = tipo_registro
         self.cantidad = cantidad
-        
-    def __str__(self):
-            return f'Ingresos totales: ${Registro.ingresos} y los egresos totales son: {Registro.egresos}'
+    
+    @classmethod    
+    def logestado(cls):
+        mensaje = f'Ingresos totales: ${cls.ingresos}, Egresos totales: ${cls.egresos}'
+        logging.info(mensaje)
         
     @abstractmethod
     def actualizar(self):
@@ -78,10 +79,10 @@ class Ingresos(Registro):
     def __init__(self, cantidad, tipo_registro):
         super().__init__(cantidad, tipo_registro)
         self.ingresos = []
-
-    def __str__(self):
-            return f'Ingresos totales: ${Registro.ingresos} y los egresos totales son: {Registro.egresos}'
-   
+    @classmethod
+    def logestado(cls):
+        mensaje = f'Ingresos totales: ${cls.ingresos}, Egresos totales: ${cls.egresos}'
+        logging.info(mensaje)   
     
     def registrar_ingreso(self):
         
@@ -97,7 +98,7 @@ class Ingresos(Registro):
         
     
     def actualizar(self):
-        print(f'\nSu saldo actual es: ${Registro.saldo_total}')
+        logging.info(f'\nSu saldo actual es: ${Registro.saldo_total}')
                   
             
 def historial_movimientos():
@@ -109,15 +110,16 @@ class Gastos(Registro):
     def __init__(self, cantidad, tipo_registro):
         super().__init__(cantidad, tipo_registro)
         self.egresos = []
-
-    def __str__(self):
-            return f'Ingresos totales: ${Registro.ingresos} y los egresos totales son: ${Registro.egresos}'
+    @classmethod
+    def logestado(cls):
+        mensaje = f'Ingresos totales: ${cls.ingresos}, Egresos totales: ${cls.egresos}'
+        logging.info(mensaje)
     
     
     def registrar_egreso(self):
             
             if self.tipo not in ['Transporte', 'alimentacion', 'servicios', 'ocio', 'hogar', 'cuidado personal','Otros']:
-                return(f'El tipo de egreso {self.tipo} no es valido')
+                raise ValueError(f'El tipo de egreso {self.tipo} no es valido')
             if self.cantidad > Registro.saldo_total:
                 raise ValueError('No cuentas con la  cantidad suficiente para este gasto.')            
             Registro.saldo_total -= self.cantidad
@@ -130,7 +132,7 @@ class Gastos(Registro):
             
 
     def actualizar(self):
-        print(f'\nSu saldo actual es: ${Registro.saldo_total}')
+        logging.info(f'\nSu saldo actual es: ${Registro.saldo_total}')
                
     
 
@@ -160,9 +162,9 @@ def menu():
                     ing.registrar_ingreso()
                     historial_movimientos()                
                     ing.actualizar()
-                    print(f'\n{ing}')
+                    Registro.logestado()
                 except ValueError as e:
-                    print(f'ERROR: {e}')
+                    logging.error(f'ERROR: {e}')
                     
             elif  opcion == 2:
                 try:
@@ -174,28 +176,28 @@ def menu():
                     egr.registrar_egreso()
                     historial_movimientos()
                     egr.actualizar()
-                    print(f'\n{egr}')
+                    Registro.logestado()
                 except ValueError as e:
-                    print(f'\nERROR: {e}')
+                    logging.error(f'\nERROR: {e}')
             
             elif opcion == 3:
-                print('\nSaliendo del programa...')
+                logging.debug('\nSaliendo del programa...')
                 break
             
             else:
                 if opcion == 3:
-                    print('Saliendo del programa.')
+                    logging.debug('Saliendo del programa.')
                     break
         
         except ValueError as e:
             system('clear')  
-            print(f'ERROR: {e}')
+            logging.error(f'ERROR: {e}')
             
             
             
         except ValueError:
             system('clear')  
-            print('Opcion incorrecta. Intenta nuevamente.')
+            logging.error('Opcion incorrecta. Intenta nuevamente.')
                   
 
 menu()
