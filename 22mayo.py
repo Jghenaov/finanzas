@@ -68,6 +68,10 @@ class Registro(ABC):
     def logestado(cls):
         mensaje = f'Ingresos totales: ${cls.ingresos}, Egresos totales: ${cls.egresos}'
         logging.info(mensaje)
+    
+    @abstractmethod
+    def registrar(self):
+        pass
         
     @abstractmethod
     def actualizar(self):
@@ -83,7 +87,7 @@ class Ingresos(Registro):
         
         
 
-    def registrar_ingreso(self):        
+    def registrar(self):        
            
         Registro.ingresos += self.cantidad 
         Registro.saldo_total += self.cantidad
@@ -113,7 +117,7 @@ class Gastos(Registro):
         self.egreso= "Egreso"
     
     
-    def registrar_egreso(self):
+    def registrar(self):
                                   
             Registro.saldo_total -= self.cantidad
             Registro.egresos += self.cantidad
@@ -125,7 +129,15 @@ class Gastos(Registro):
             
     def actualizar(self):
         logging.info(f'\nSu saldo actual es: ${Registro.saldo_total}')
-               
+        
+class Fabrica:
+    
+    @staticmethod
+    def crear_fabrica(registro, cantidad, tipo_registro):
+        if registro == "Ingreso":
+            return Ingresos(cantidad, tipo_registro)
+        if registro =="Egreso":
+            return Gastos(cantidad, tipo_registro)               
     
     
 def menu():
@@ -154,8 +166,8 @@ def menu():
                 if tipoIngreso not in ['sueldo', 'dividendos', 'independientes', 'otros']:
                     raise ValueError(f'El tipo de ingreso {tipoIngreso} no es valido')
                 system('clear')
-                ing = Ingresos(ingreso, tipoIngreso)
-                ing.registrar_ingreso()                
+                ing = Fabrica.crear_fabrica("Ingreso", ingreso, tipoIngreso)
+                ing.registrar()                
                 ing.actualizar()
                 Registro.logestado()
                 
@@ -172,8 +184,8 @@ def menu():
                 if tipoEgreso not in ['transporte', 'alimentacion', 'servicios', 'ocio', 'hogar', 'cuidado personal','otros']:
                     raise ValueError(f'El tipo de egreso {tipoEgreso} no es valido')
                 system('clear')
-                egr = Gastos(egreso, tipoEgreso)
-                egr.registrar_egreso()
+                egr = Fabrica.crear_fabrica("Egreso", egreso, tipoEgreso)
+                egr.registrar()
                 egr.actualizar()
                 Registro.logestado()
                 
@@ -185,7 +197,7 @@ def menu():
 
             
             
-            elif opcion == 4:
+            elif opcion == '4':
                 logging.debug('Saliendo del programa.')
                 break  
             
