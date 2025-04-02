@@ -182,9 +182,6 @@ def menu():
                 system('clear')
                 historial_movimientos()
                 
-
-            
-            
             elif opcion == 4:
                 logging.debug('Saliendo del programa.')
                 break  
